@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+import os
 import requests
 import pandas as pd
 import re
@@ -8,35 +8,18 @@ from urllib.parse import urljoin
 import time as tm
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
-app = Flask(__name__)
 
 
-def buscar_dados():
-    link = "8101188074:AAHkS6A28wGm7JAkXuUBOlogi5k7x3w5fno"
-
-    html = requests.get(link, timeout=20).text
-    df = pd.read_html(html)[0]
-
-    # Exemplo: transforma o DataFrame em lista de dicionários
-    resultado = df.fillna("").to_dict(orient="records")
-
-    return resultado
+BOT_TOKEN = os.getenv("8101188074:AAHkS6A28wGm7JAkXuUBOlogi5k7x3w5fno")
+CHAT_ID = os.getenv("5095408254")
 
 
-@app.route("/")
-def home():
-    return "Aplicação rodando no Render!"
+if not BOT_TOKEN:
+    raise Exception("BOT_TOKEN não configurado nas variáveis de ambiente.")
 
+if not CHAT_ID:
+    raise Exception("CHAT_ID não configurado nas variáveis de ambiente.")
 
-@app.route("/dados")
-def dados():
-    try:
-        resultado = buscar_dados()
-        return jsonify(resultado)
-    except Exception as erro:
-        return jsonify({"erro": str(erro)}), 500
-if __name__ == "__main__":
-    app.run(debug=True)
 ligas = [
     "England Premier League",
     "England Championship",
@@ -85,7 +68,7 @@ ligas = [
     "Australia A-League",
     "Asia - World Cup Qualifying",
     "South America - World Cup Qualifying",
-    "Euro 2024 Qualifying"
+    "Euro 2024 Qualifying",
     "Copa Libertadores",
     "Copa Sudamericana"
     ]
@@ -161,7 +144,7 @@ def limpar_time(txt):
 
     return txt.strip()
 
-buscar_dados()
+BOT_TOKEN = "8101188074:AAHkS6A28wGm7JAkXuUBOlogi5k7x3w5fno"
 CHAT_ID = "5095408254"
 
 sinais_enviados = set()
