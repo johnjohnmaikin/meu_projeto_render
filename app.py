@@ -12,8 +12,8 @@ from urllib.parse import urljoin
 
 app = Flask(__name__)
 
-BOT_TOKEN = os.getenv("8101188074:AAHkS6A28wGm7JAkXuUBOlogi5k7x3w5fno")
-CHAT_ID = os.getenv("5095408254")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
 TOTALCORNER_URL = "https://www.totalcorner.com/match/today"
 CHECK_INTERVAL_SECONDS = int(os.getenv("CHECK_INTERVAL_SECONDS", "300"))
