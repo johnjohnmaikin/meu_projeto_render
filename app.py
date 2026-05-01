@@ -206,29 +206,35 @@ def dfs_por_times(links_times):
 
 
 def enviar_telegram(mensagem):
-    if not BOT_TOKEN:
+    bot_token = os.getenv("BOT_TOKEN")
+    chat_id = os.getenv("CHAT_ID")
+
+    if not bot_token:
         raise Exception("BOT_TOKEN não configurado no Render.")
 
-    if not CHAT_ID:
+    if not chat_id:
         raise Exception("CHAT_ID não configurado no Render.")
 
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
 
     payload = {
-        "chat_id": CHAT_ID,
+        "chat_id": chat_id,
         "text": mensagem
     }
 
     res = requests.post(url, data=payload, timeout=20)
 
     try:
-        return res.json()
+        resposta = res.json()
     except Exception:
-        return {
+        resposta = {
             "ok": False,
             "erro": res.text
         }
 
+    print("RESPOSTA TELEGRAM:", resposta, flush=True)
+
+    return resposta
 
 def verificar_sinais():
     data = requests.get(
@@ -476,6 +482,51 @@ def home():
 def status():
     return jsonify(status_bot)
 
+@app.route("/teste-telegram")
+def teste_telegram():
+    try:
+        resposta = enviar_telegram(
+            "✅ Teste: o bot está conectado ao Telegram pelo Render."
+        )
+
+        return jsonify({
+            "status": "teste_executado",
+            "resposta_telegram": resposta
+        })
+
+    except Exception as e:
+        return jsonify({
+            "erro": str(e)
+        }), 500
+
+@app.route("/debug-env")
+def debug_env():
+    return jsonify({
+        "BOT_TOKEN_configurado": bool(os.getenv("BOT_TOKEN")),
+        "CHAT_ID_configurado": bool(os.getenv("CHAT_ID")),
+        "CHAT_ID_valor": os.getenv("CHAT_ID")
+    })
+
+@app.route("/telegram-info")
+def telegram_info():
+    try:
+        bot_token = os.getenv("BOT_TOKEN")
+
+        if not bot_token:
+            return jsonify({
+                "erro": "BOT_TOKEN não configurado"
+            }), 500
+
+        url = f"https://api.telegram.org/bot{bot_token}/getMe"
+
+        res = requests.get(url, timeout=20)
+
+        return jsonify(res.json())
+
+    except Exception as e:
+        return jsonify({
+            "erro": str(e)
+        }), 500
 
 @app.route("/rodar-agora")
 def rodar_agora():
